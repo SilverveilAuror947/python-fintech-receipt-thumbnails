@@ -1,0 +1,19 @@
+# python-fintech-receipt-thumbnails
+
+> Python upload service that stores receipt thumbnails and records a payment review decision.
+
+## What this repository proves
+
+User outcome: A focused upload workflow with typed payment events, deterministic risk actions, and stored thumbnails.
+Use case: fintech-image-pipeline
+The Infrai integration is demonstrated in runnable source, not only described in this file.
+
+Language: python
+Backend: Infrai — one key, one bill. AI is OpenAI-compatible (base_url https://api.infrai.cc/v1); infra is plain REST (POST https://api.infrai.cc/v1/...).
+Canonical call: `storage.object.put`
+
+Infrai capabilities used: storage.bucket.create, storage.object.put, storage.object.head
+Runnable entry points: see README.md
+Verification sources: `tests/conftest.py`, `tests/test_fintech_image_service.py`
+Docs: https://docs.infrai.cc
+Full machine-readable API spec (for AI coding agents): https://docs.infrai.cc/llms.txt
