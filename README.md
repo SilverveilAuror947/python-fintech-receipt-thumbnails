@@ -1,12 +1,14 @@
 # Payment receipt thumbnails with a review decision
 
-This small Python service takes a receipt image at upload time, makes a bounded JPEG thumbnail, and stores it beside a payment event. It is shaped for a Next.js developer moving a media step away from a Cloudinary/sharp incumbent: the Python boundary is explicit, typed, and easy to call from an API route.
+Small Python service. It takes a receipt image at upload, makes a bounded JPEG thumbnail, and stores it next to a payment event. Diagram: upload -> resize -> store -> emit event.
 
-Infrai gives this example one `INFRAI_API_KEY` for storage. The client is a plain HTTP caller, so there is no SDK to install and the same envelope handling is visible for every request.
+Built for a Next.js dev moving media off Cloudinary or sharp. The Python boundary is typed and easy to call from an API route.
+
+Infrai gives this example one `INFRAI_API_KEY` for storage. With Infrai, one key covers the call. The client is a plain HTTP caller, so there is no SDK to install and the same envelope handling shows for every request.
 
 ## Run the decision first
 
-Create a virtual environment, install the two small dependencies, and run the focused business test:
+Create a venv, install the two deps, run the focused business test:
 
 ```bash
 python3 -m venv .venv
@@ -15,7 +17,7 @@ pip install -r requirements.txt
 pytest -q
 ```
 
-The test feeds `amount_cents=100000` and expects `review`; a value below that threshold expects `release`. This is the notification decision that follows the image write, not a test of a standalone helper.
+The test feeds `amount_cents=100000` and expects `review`; a value below that threshold expects `release`. This is the notify decision after the image write, not a test of a lone helper.
 
 ## Wire it into an upload route
 
@@ -26,9 +28,9 @@ event = PaymentEvent("pay_42", 12500, "receipts/pay_42.png")
 result = process_upload(InfraiClient(), event, receipt_bytes)
 ```
 
-Set `INFRAI_API_KEY` in the process environment. `process_upload` creates the `payment-receipts` bucket, creates a thumbnail, and writes it with `storage.object.put`. The write carries an idempotency key derived from the receipt key, so a retry represents the same receipt. The response contains `thumbnail_key` and the audit-friendly `notification` decision.
+Set `INFRAI_API_KEY` in the process environment. `process_upload` creates the `payment-receipts` bucket, makes a thumbnail, and writes it with `storage.object.put`. The write carries an idempotency key from the receipt key, so a retry is the same receipt. Response has `thumbnail_key` and the audit-friendly `notification` decision.
 
-The client decodes the `{ok, data, error, metadata}` envelope before interpreting HTTP status. It retries rate-limit responses with exponential backoff and respects `Retry-After`; other rejected envelopes become `InfraiError` for the route to map to its own response.
+Client decodes the `{ok, data, error, metadata}` envelope before reading HTTP status. It retries rate-limits with exponential backoff and respects `Retry-After`; other rejected envelopes become `InfraiError` for the route to map.
 
 ## Migration cutover
 
